@@ -3,42 +3,42 @@
 import { db } from "../../../packages/db-schema"; // Adjust this path!
 import { jobControl, events } from "../../../packages/db-schema/schema"; // Import schema definitions
 import { eq } from "drizzle-orm";
+import { initializeAllStreamers, connections } from "./tiktok-service";
 
 let isJobRunning = false;
-let logInterval: NodeJS.Timeout | null = null;
 
-async function startLoggingJob() {
+async function startTikTokMonitoring() {
   if (isJobRunning) {
-    console.log("Worker: Job is already running.");
+    console.log("Worker: TikTok monitoring is already running.");
     return;
   }
   isJobRunning = true;
-  console.log("Worker: Starting logging job...");
-  if (logInterval) clearInterval(logInterval);
+  console.log("Worker: Starting TikTok live monitoring...");
 
-  logInterval = setInterval(async () => {
-    try {
-      const timestamp = new Date().toISOString();
-      const message = `Event logged at ${timestamp}`;
-      await db.insert(events).values({ timestamp, message });
-      console.log("Worker: Logged:", message);
-    } catch (err: any) {
-      console.error("Worker: Error logging event with Drizzle:", err.message);
-    }
-  }, 5000); // Log every 5 seconds
+  try {
+    await initializeAllStreamers();
+  } catch (err: any) {
+    console.error("Worker: Error starting TikTok monitoring:", err.message);
+    isJobRunning = false;
+  }
 }
 
-function stopLoggingJob() {
+function stopTikTokMonitoring() {
   if (!isJobRunning) {
-    console.log("Worker: Job is already stopped.");
+    console.log("Worker: TikTok monitoring is already stopped.");
     return;
   }
   isJobRunning = false;
-  if (logInterval) {
-    clearInterval(logInterval);
-    logInterval = null;
+
+  // Disconnect all TikTok connections
+  for (const [username, connection] of Object.entries(connections)) {
+    console.log(`Worker: Disconnecting from @${username}...`);
+    if (connection.isConnected) {
+      connection.disconnect();
+    }
   }
-  console.log("Worker: Logging job stopped.");
+
+  console.log("Worker: TikTok monitoring stopped.");
 }
 
 async function pollJobControl() {
@@ -53,9 +53,9 @@ async function pollJobControl() {
       const status = rows[0]?.status;
 
       if (status === "started" && !isJobRunning) {
-        startLoggingJob();
+        startTikTokMonitoring();
       } else if (status === "stopped" && isJobRunning) {
-        stopLoggingJob();
+        stopTikTokMonitoring();
       }
     } catch (err: any) {
       console.error(
@@ -71,12 +71,12 @@ pollJobControl();
 
 // Handle graceful shutdown
 process.on("SIGINT", () => {
-  console.log("Worker: SIGINT received, stopping job...");
-  stopLoggingJob();
+  console.log("Worker: SIGINT received, stopping TikTok monitoring...");
+  stopTikTokMonitoring();
   process.exit(0);
 });
 process.on("SIGTERM", () => {
-  console.log("Worker: SIGTERM received, stopping job...");
-  stopLoggingJob();
+  console.log("Worker: SIGTERM received, stopping TikTok monitoring...");
+  stopTikTokMonitoring();
   process.exit(0);
 });

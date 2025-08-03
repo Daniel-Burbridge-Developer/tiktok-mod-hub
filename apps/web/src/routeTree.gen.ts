@@ -12,6 +12,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { ServerRoute as ApiTiktokChatServerRouteImport } from './routes/api/tiktok-chat'
 import { ServerRoute as ApiJobServerRouteImport } from './routes/api/job'
 
 const rootServerRouteImport = createServerRootRoute()
@@ -20,6 +21,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTiktokChatServerRoute = ApiTiktokChatServerRouteImport.update({
+  id: '/api/tiktok-chat',
+  path: '/api/tiktok-chat',
+  getParentRoute: () => rootServerRouteImport,
 } as any)
 const ApiJobServerRoute = ApiJobServerRouteImport.update({
   id: '/api/job',
@@ -50,24 +56,28 @@ export interface RootRouteChildren {
 }
 export interface FileServerRoutesByFullPath {
   '/api/job': typeof ApiJobServerRoute
+  '/api/tiktok-chat': typeof ApiTiktokChatServerRoute
 }
 export interface FileServerRoutesByTo {
   '/api/job': typeof ApiJobServerRoute
+  '/api/tiktok-chat': typeof ApiTiktokChatServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/api/job': typeof ApiJobServerRoute
+  '/api/tiktok-chat': typeof ApiTiktokChatServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/job'
+  fullPaths: '/api/job' | '/api/tiktok-chat'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/job'
-  id: '__root__' | '/api/job'
+  to: '/api/job' | '/api/tiktok-chat'
+  id: '__root__' | '/api/job' | '/api/tiktok-chat'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   ApiJobServerRoute: typeof ApiJobServerRoute
+  ApiTiktokChatServerRoute: typeof ApiTiktokChatServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -83,6 +93,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/api/tiktok-chat': {
+      id: '/api/tiktok-chat'
+      path: '/api/tiktok-chat'
+      fullPath: '/api/tiktok-chat'
+      preLoaderRoute: typeof ApiTiktokChatServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/api/job': {
       id: '/api/job'
       path: '/api/job'
@@ -101,6 +118,7 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
   ApiJobServerRoute: ApiJobServerRoute,
+  ApiTiktokChatServerRoute: ApiTiktokChatServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)

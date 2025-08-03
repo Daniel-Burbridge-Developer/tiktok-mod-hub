@@ -14,7 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "@libsql/client": "^0.15.10",
-    "drizzle-orm": "^0.44.4"
+    "drizzle-orm": "^0.44.4",
+    "tiktok-live-connector": "2.0.7-alpha2"
   },
   "devDependencies": {
     "@types/node": "^22.17.0",
