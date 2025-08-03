@@ -21,3 +21,9 @@ yarn.lock
 
 #allowlist
 !.env.example
+
+# Database files
+db/
+*.sqlite
+*.sqlite3
+*.db

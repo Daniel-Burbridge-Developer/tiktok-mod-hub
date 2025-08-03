@@ -8,6 +8,8 @@
     "dev:web": "pnpm --filter @tiktok-mod-hub/web dev",
     "dev:worker": "pnpm --filter @tiktok-mod-hub/worker dev",
     "db:studio": "drizzle-kit studio",
+    "db:init": "tsx scripts/init-db.ts",
+    "db:push": "drizzle-kit push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
