@@ -1,0 +1,15 @@
+# docker-compose.yml
+version: "3.8" # Specifies the Docker Compose file format version
+
+services:
+  db:
+    image: alpine/git
+    container_name: tiktok_mod_hub_db
+    volumes:
+      - db_data:/app/data
+    command: ["tail", "-F", "/dev/null"] # This keeps the container running indefinitely
+    # We use 'tail -F /dev/null' because there's no "SQLite server" process to keep running.
+    # This service's primary purpose is to ensure the `db_data` volume is available.
+
+volumes:
+  db_data:

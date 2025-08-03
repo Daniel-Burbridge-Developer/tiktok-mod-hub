@@ -8,45 +8,66 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createServerRootRoute } from '@tanstack/react-start/server'
+
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiJobRouteImport } from './routes/api/job'
+import { ServerRoute as ApiJobServerRouteImport } from './routes/api/job'
+
+const rootServerRouteImport = createServerRootRoute()
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiJobRoute = ApiJobRouteImport.update({
+const ApiJobServerRoute = ApiJobServerRouteImport.update({
   id: '/api/job',
   path: '/api/job',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => rootServerRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/job': typeof ApiJobRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/job': typeof ApiJobRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/job': typeof ApiJobRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/job'
+  fullPaths: '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/job'
-  id: '__root__' | '/' | '/api/job'
+  to: '/'
+  id: '__root__' | '/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiJobRoute: typeof ApiJobRoute
+}
+export interface FileServerRoutesByFullPath {
+  '/api/job': typeof ApiJobServerRoute
+}
+export interface FileServerRoutesByTo {
+  '/api/job': typeof ApiJobServerRoute
+}
+export interface FileServerRoutesById {
+  __root__: typeof rootServerRouteImport
+  '/api/job': typeof ApiJobServerRoute
+}
+export interface FileServerRouteTypes {
+  fileServerRoutesByFullPath: FileServerRoutesByFullPath
+  fullPaths: '/api/job'
+  fileServerRoutesByTo: FileServerRoutesByTo
+  to: '/api/job'
+  id: '__root__' | '/api/job'
+  fileServerRoutesById: FileServerRoutesById
+}
+export interface RootServerRouteChildren {
+  ApiJobServerRoute: typeof ApiJobServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,20 +79,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+  }
+}
+declare module '@tanstack/react-start/server' {
+  interface ServerFileRoutesByPath {
     '/api/job': {
       id: '/api/job'
       path: '/api/job'
       fullPath: '/api/job'
-      preLoaderRoute: typeof ApiJobRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof ApiJobServerRouteImport
+      parentRoute: typeof rootServerRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiJobRoute: ApiJobRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiJobServerRoute: ApiJobServerRoute,
+}
+export const serverRouteTree = rootServerRouteImport
+  ._addFileChildren(rootServerRouteChildren)
+  ._addFileTypes<FileServerRouteTypes>()

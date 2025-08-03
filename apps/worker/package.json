@@ -1,12 +1,24 @@
 {
   "name": "@tiktok-mod-hub/worker",
   "version": "1.0.0",
-  "description": "",
+  "description": "Background job worker for TikTok Mod Hub",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "start": "cd ../.. && DATABASE_PATH_DIR=./db tsx apps/worker/src/index.ts",
+    "dev": "cd ../.. && DATABASE_PATH_DIR=./db tsx watch apps/worker/src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@libsql/client": "^0.15.10",
+    "drizzle-orm": "^0.44.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.17.0",
+    "concurrently": "^9.2.0",
+    "tsx": "^4.20.3"
+  }
 }
