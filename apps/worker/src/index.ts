@@ -1,9 +1,13 @@
 /// <reference types="node" />
 // apps/worker/src/index.ts
 import { db } from "../../../packages/db-schema"; // Adjust this path!
-import { jobControl, events } from "../../../packages/db-schema/schema"; // Import schema definitions
+import { jobControl } from "../../../packages/db-schema/schema"; // Import schema definitions
 import { eq } from "drizzle-orm";
-import { initializeAllStreamers, connections } from "./tiktok-service";
+import {
+  initializeAllStreamers,
+  stopAllMonitoring,
+  connections,
+} from "./tiktok-service";
 
 let isJobRunning = false;
 
@@ -23,33 +27,29 @@ async function startTikTokMonitoring() {
   }
 }
 
-function stopTikTokMonitoring() {
+async function stopTikTokMonitoring() {
   if (!isJobRunning) {
     console.log("Worker: TikTok monitoring is already stopped.");
     return;
   }
   isJobRunning = false;
 
-  // Disconnect all TikTok connections
-  for (const [username, connection] of Object.entries(connections)) {
-    console.log(`Worker: Disconnecting from @${username}...`);
-    if (connection.isConnected) {
-      connection.disconnect();
-    }
+  try {
+    await stopAllMonitoring();
+    console.log("Worker: TikTok monitoring stopped.");
+  } catch (err: any) {
+    console.error("Worker: Error stopping TikTok monitoring:", err.message);
   }
-
-  console.log("Worker: TikTok monitoring stopped.");
 }
 
 async function pollJobControl() {
   // The db object is already initialized from packages/db-schema
   setInterval(async () => {
     try {
-      const rows = await db
-        .select()
-        .from(jobControl)
-        .where(eq(jobControl.id, 1))
-        .limit(1);
+      const rows = await db.withRetry(
+        () => db.select().from(jobControl).where(eq(jobControl.id, 1)).limit(1),
+        "poll job control"
+      );
       const status = rows[0]?.status;
 
       if (status === "started" && !isJobRunning) {

@@ -12,6 +12,7 @@ import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { ServerRoute as ApiTrackedUsernamesServerRouteImport } from './routes/api/tracked-usernames'
 import { ServerRoute as ApiTiktokChatServerRouteImport } from './routes/api/tiktok-chat'
 import { ServerRoute as ApiJobServerRouteImport } from './routes/api/job'
 
@@ -22,6 +23,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTrackedUsernamesServerRoute =
+  ApiTrackedUsernamesServerRouteImport.update({
+    id: '/api/tracked-usernames',
+    path: '/api/tracked-usernames',
+    getParentRoute: () => rootServerRouteImport,
+  } as any)
 const ApiTiktokChatServerRoute = ApiTiktokChatServerRouteImport.update({
   id: '/api/tiktok-chat',
   path: '/api/tiktok-chat',
@@ -57,27 +64,31 @@ export interface RootRouteChildren {
 export interface FileServerRoutesByFullPath {
   '/api/job': typeof ApiJobServerRoute
   '/api/tiktok-chat': typeof ApiTiktokChatServerRoute
+  '/api/tracked-usernames': typeof ApiTrackedUsernamesServerRoute
 }
 export interface FileServerRoutesByTo {
   '/api/job': typeof ApiJobServerRoute
   '/api/tiktok-chat': typeof ApiTiktokChatServerRoute
+  '/api/tracked-usernames': typeof ApiTrackedUsernamesServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
   '/api/job': typeof ApiJobServerRoute
   '/api/tiktok-chat': typeof ApiTiktokChatServerRoute
+  '/api/tracked-usernames': typeof ApiTrackedUsernamesServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/job' | '/api/tiktok-chat'
+  fullPaths: '/api/job' | '/api/tiktok-chat' | '/api/tracked-usernames'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/job' | '/api/tiktok-chat'
-  id: '__root__' | '/api/job' | '/api/tiktok-chat'
+  to: '/api/job' | '/api/tiktok-chat' | '/api/tracked-usernames'
+  id: '__root__' | '/api/job' | '/api/tiktok-chat' | '/api/tracked-usernames'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
   ApiJobServerRoute: typeof ApiJobServerRoute
   ApiTiktokChatServerRoute: typeof ApiTiktokChatServerRoute
+  ApiTrackedUsernamesServerRoute: typeof ApiTrackedUsernamesServerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -93,6 +104,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/api/tracked-usernames': {
+      id: '/api/tracked-usernames'
+      path: '/api/tracked-usernames'
+      fullPath: '/api/tracked-usernames'
+      preLoaderRoute: typeof ApiTrackedUsernamesServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/api/tiktok-chat': {
       id: '/api/tiktok-chat'
       path: '/api/tiktok-chat'
@@ -119,6 +137,7 @@ export const routeTree = rootRouteImport
 const rootServerRouteChildren: RootServerRouteChildren = {
   ApiJobServerRoute: ApiJobServerRoute,
   ApiTiktokChatServerRoute: ApiTiktokChatServerRoute,
+  ApiTrackedUsernamesServerRoute: ApiTrackedUsernamesServerRoute,
 }
 export const serverRouteTree = rootServerRouteImport
   ._addFileChildren(rootServerRouteChildren)

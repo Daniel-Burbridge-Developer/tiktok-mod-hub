@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import JobCaller from "~/components/templates/jobCaller";
 import TikTokChatDisplay from "~/components/templates/TikTokChatDisplay";
+import UsernameManager from "~/components/templates/UsernameManager";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -17,6 +18,8 @@ function Home() {
       </div>
 
       <JobCaller />
+
+      <UsernameManager />
 
       <TikTokChatDisplay />
     </div>

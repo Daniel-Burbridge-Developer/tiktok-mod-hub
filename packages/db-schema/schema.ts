@@ -65,3 +65,64 @@ export const tiktokStreamInfo = sqliteTable("tiktok_stream_info", {
   isLive: integer("is_live", { mode: "boolean" }).notNull().default(false),
   lastUpdated: text("last_updated").notNull(),
 });
+
+// New tables for enhanced features
+export const trackedUsernames = sqliteTable("tracked_usernames", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  username: text("username").notNull().unique(),
+  displayName: text("display_name"),
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  addedAt: text("added_at").notNull(),
+  lastSeen: text("last_seen"),
+  totalStreams: integer("total_streams").notNull().default(0),
+  totalDuration: integer("total_duration").notNull().default(0), // in seconds
+  notes: text("notes"),
+});
+
+export const streamSessions = sqliteTable("stream_sessions", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  sessionId: text("session_id").notNull().unique(),
+  streamerUsername: text("streamer_username").notNull(),
+  roomId: text("room_id").notNull(),
+  startTime: text("start_time").notNull(),
+  endTime: text("end_time"),
+  duration: integer("duration"), // in seconds
+  totalViews: integer("total_views"),
+  peakViewers: integer("peak_viewers"),
+  totalLikes: integer("total_likes").notNull().default(0),
+  totalGifts: integer("total_gifts").notNull().default(0),
+  totalShares: integer("total_shares").notNull().default(0),
+  totalComments: integer("total_comments").notNull().default(0),
+  totalMembers: integer("total_members").notNull().default(0),
+  streamTitle: text("stream_title"),
+  streamDescription: text("stream_description"),
+  isCompleted: integer("is_completed", { mode: "boolean" })
+    .notNull()
+    .default(false),
+});
+
+export const streamHighlights = sqliteTable("stream_highlights", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  sessionId: text("session_id").notNull(),
+  streamerUsername: text("streamer_username").notNull(),
+  highlightType: text("highlight_type", {
+    enum: ["gift", "like", "share", "member", "chat"],
+  }).notNull(),
+  timestamp: text("timestamp").notNull(),
+  description: text("description").notNull(),
+  data: text("data"), // JSON string for additional data
+});
+
+export const userStats = sqliteTable("user_stats", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  userNickname: text("user_nickname").notNull(),
+  streamerUsername: text("streamer_username").notNull(),
+  totalGifts: integer("total_gifts").notNull().default(0),
+  totalLikes: integer("total_likes").notNull().default(0),
+  totalShares: integer("total_shares").notNull().default(0),
+  totalComments: integer("total_comments").notNull().default(0),
+  totalMemberships: integer("total_memberships").notNull().default(0),
+  firstSeen: text("first_seen").notNull(),
+  lastSeen: text("last_seen").notNull(),
+  isTopFan: integer("is_top_fan", { mode: "boolean" }).notNull().default(false),
+});

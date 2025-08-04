@@ -1,30 +1,19 @@
-// packages/db-schema/migrate.ts
+// init-db.ts
 import { createClient } from "@libsql/client";
 import path from "path";
-import fs from "fs";
 
-async function migrate() {
+async function initDatabase() {
   try {
-    console.log("Starting database migration...");
-
-    // This path will be set by Docker Compose, or fallback for local dev
-    const DATABASE_FILE_NAME = "events.sqlite";
-    const DB_DIR =
-      process.env.DATABASE_PATH_DIR || path.resolve(process.cwd(), "db");
-    const DB_FULL_PATH = path.join(DB_DIR, DATABASE_FILE_NAME);
-
-    // Ensure the directory exists for local development
-    if (!fs.existsSync(DB_DIR)) {
-      fs.mkdirSync(DB_DIR, { recursive: true });
-    }
-
+    console.log("Initializing database...");
+    
+    const DB_PATH = path.resolve(process.cwd(), "db", "events.sqlite");
     const client = createClient({
-      url: `file:${DB_FULL_PATH}`,
+      url: `file:${DB_PATH}`,
     });
 
-    console.log("Drizzle DB client initialized for:", DB_FULL_PATH);
+    console.log("Database path:", DB_PATH);
 
-    // Create tables using raw SQL
+    // Create all tables
     const tables = [
       // Original tables
       `CREATE TABLE IF NOT EXISTS events (
@@ -32,7 +21,7 @@ async function migrate() {
         timestamp TEXT NOT NULL,
         message TEXT NOT NULL
       )`,
-
+      
       `CREATE TABLE IF NOT EXISTS job_control (
         id INTEGER PRIMARY KEY DEFAULT 1,
         status TEXT CHECK(status IN ('started', 'stopped')) NOT NULL DEFAULT 'stopped'
@@ -151,10 +140,11 @@ async function migrate() {
       console.log("Created table:", table.split(" ")[2]);
     }
 
-    // Insert default job control record if it doesn't exist
+    // Insert default job control record
     await client.execute(`
       INSERT OR IGNORE INTO job_control (id, status) VALUES (1, 'stopped')
     `);
+    console.log("Inserted default job control record");
 
     // Insert some default tracked usernames
     const defaultUsernames = [
@@ -170,20 +160,21 @@ async function migrate() {
         VALUES (?, ?)
       `, [username, new Date().toISOString()]);
     }
+    console.log("Inserted default tracked usernames");
 
-    console.log("Database migration completed successfully!");
+    console.log("Database initialization completed successfully!");
   } catch (error) {
-    console.error("Migration failed:", error);
+    console.error("Database initialization failed:", error);
     process.exit(1);
   }
 }
 
-// Run migration if this file is executed directly
+// Run initialization if this file is executed directly
 if (require.main === module) {
-  migrate().then(() => {
-    console.log("Migration script completed");
+  initDatabase().then(() => {
+    console.log("Database initialization script completed");
     process.exit(0);
   });
 }
 
-export { migrate };
+export { initDatabase }; 

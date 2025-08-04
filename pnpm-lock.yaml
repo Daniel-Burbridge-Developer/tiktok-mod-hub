@@ -82,9 +82,15 @@ importers:
 
   apps/worker:
     dependencies:
+      '@eulerstream/euler-api-sdk':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@libsql/client':
         specifier: ^0.15.10
         version: 0.15.10
+      axios:
+        specifier: ^1.11.0
+        version: 1.11.0
       drizzle-orm:
         specifier: ^0.44.4
         version: 0.44.4(@libsql/client@0.15.10)
